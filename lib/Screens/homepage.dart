@@ -7,42 +7,86 @@ class Homepage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Exercise 4 & 5: Building Screen Structure using Scaffold & ThemeData
+    // Dữ liệu mẫu cho danh sách phim (Exercise 3)
+    final List<Map<String, String>> movies = [
+      {'title': 'Avatar', 'subtitle': 'Sample description', 'letter': 'A'},
+      {'title': 'Inception', 'subtitle': 'Sample description', 'letter': 'I'},
+      {'title': 'Interstellar', 'subtitle': 'Sample description', 'letter': 'I'},
+      {'title': 'Joker', 'subtitle': 'Sample description', 'letter': 'J'},
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lab 4 - Flutter UI Fundamentals Demo'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {},
+        ),
+        title: const Text('Exercise 3 - Layout Basics'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        // Exercise 3: Layout Composition using ListView, Column, Row, Padding
-        child: ListView(
+        padding: const EdgeInsets.all(16.0), // Áp dụng spacing đồng nhất (16px)
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Tiêu đề phần Now Playing
             const Text(
-              'Exercise 1: Core Widgets (Card, Image, Text)',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              'Now Playing',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            const SizedBox(height: 10),
-            // Hiển thị widget sản phẩm của Exercise 1
-            const Center(child: productWidget()),
-            const Divider(height: 40, thickness: 2),
+            const SizedBox(height: 12), // Khoảng cách giữa tiêu đề và danh sách
 
-            const Text(
-              'Exercise 2: Input Controls (Slider, Switch, Radio)',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // Sử dụng ListView.builder để hiển thị danh sách các item
+            Expanded(
+              child: ListView.builder(
+                itemCount: movies.length,
+                itemBuilder: (context, index) {
+                  final movie = movies[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12), // Khoảng cách giữa các card
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        // Avatar tròn hiển thị chữ cái đầu
+                        CircleAvatar(
+                          backgroundColor: Colors.grey[300],
+                          foregroundColor: Colors.black87,
+                          child: Text(movie['letter']!),
+                        ),
+                        const SizedBox(width: 16), // Khoảng cách giữa Avatar và text
+                        // Tiêu đề phim và mô tả
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              movie['title']!,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              movie['subtitle']!,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-            const SizedBox(height: 10),
-            // Nút chuyển hướng sang màn hình Input Controls của Exercise 2
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const inputWidget()),
-                );
-              },
-              child: const Text('Mở bài tập Input Controls (Exercise 2)'),
-            ),
-            const SizedBox(height: 20),
           ],
         ),
       ),
