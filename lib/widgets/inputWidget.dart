@@ -1,94 +1,106 @@
 import 'package:flutter/material.dart';
 
-class inputWidget extends StatefulWidget {
-  const inputWidget({super.key});
+class InputWidget extends StatefulWidget {
+  const InputWidget({super.key});
 
   @override
-  State<inputWidget> createState() => _inputWidgetState();
+  State<InputWidget> createState() => _InputWidgetState();
 }
 
-class _inputWidgetState extends State<inputWidget> {
-  // Khai báo các biến trạng thái cho các input control
-  double _sliderValue = 20.0;
-  bool _switchValue = false;
-  int? _selectedRadio = 1;
+class _InputWidgetState extends State<InputWidget> {
+  double _ratingValue = 50;
+  bool _isActive = false;
+  String? _selectedGenre = 'None';
+  DateTime? _selectedDate;
+
+  // Hàm mở DatePicker (Xử lý lỗi context chuẩn Exercise 5)
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Exercise 2 - Input Controls Demo'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Slider Demo
-            const Text(
-              'Slider Control:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            const Text('Rating (Slider)', style: TextStyle(fontWeight: FontWeight.bold)),
             Slider(
-              value: _sliderValue,
+              value: _ratingValue,
               min: 0,
               max: 100,
               divisions: 10,
-              label: _sliderValue.round().toString(),
+              label: _ratingValue.round().toString(),
               onChanged: (double value) {
                 setState(() {
-                  _sliderValue = value;
+                  _ratingValue = value; // Sửa lỗi state update bằng setState()
                 });
               },
             ),
-            Text('Giá trị Slider: ${_sliderValue.round()}'),
-            const Divider(height: 30),
+            Text('Current value: ${_ratingValue.round()}'),
+            const Divider(),
 
-            // 2. Switch Demo
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Switch Control (Bật/Tắt):',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Switch(
-                  value: _switchValue,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _switchValue = value;
-                    });
-                  },
-                ),
-              ],
+            const Text('Active (Switch)', style: TextStyle(fontWeight: FontWeight.bold)),
+            SwitchListTile(
+              title: const Text('Is movie active?'),
+              value: _isActive,
+              onChanged: (bool value) {
+                setState(() {
+                  _isActive = value;
+                });
+              },
             ),
-            Text('Trạng thái Switch: ${_switchValue ? "Đang bật" : "Đang tắt"}'),
-            const Divider(height: 30),
+            const Divider(),
 
-            // 3. RadioListTile Demo
-            const Text(
-              'RadioListTile Control (Lựa chọn):',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            RadioListTile<int>(
-              title: const Text('Lựa chọn 1 (Standard)'),
-              value: 1,
-              groupValue: _selectedRadio,
-              onChanged: (int? value) {
+            const Text('Genre (RadioListTile)', style: TextStyle(fontWeight: FontWeight.bold)),
+            RadioListTile<String>(
+              title: const Text('Action'),
+              value: 'Action',
+              groupValue: _selectedGenre,
+              onChanged: (String? value) {
                 setState(() {
-                  _selectedRadio = value;
+                  _selectedGenre = value;
                 });
               },
             ),
-            RadioListTile<int>(
-              title: const Text('Lựa chọn 2 (Express)'),
-              value: 2,
-              groupValue: _selectedRadio,
-              onChanged: (int? value) {
+            RadioListTile<String>(
+              title: const Text('Comedy'),
+              value: 'Comedy',
+              groupValue: _selectedGenre,
+              onChanged: (String? value) {
                 setState(() {
-                  _selectedRadio = value;
+                  _selectedGenre = value;
                 });
               },
             ),
+            Text('Selected genre: $_selectedGenre'),
+            const Divider(),
+
+            Center(
+              child: ElevatedButton(
+                onPressed: () => _selectDate(context),
+                child: const Text('Open Date Picker'),
+              ),
+            ),
+            if (_selectedDate != null)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text('Selected Date: ${_selectedDate?.toLocal().toString().split(' ')[0]}'),                ),
+              ),
           ],
         ),
       ),

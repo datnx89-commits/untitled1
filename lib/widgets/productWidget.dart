@@ -1,59 +1,51 @@
 import 'package:flutter/material.dart';
 
-class productWidget extends StatelessWidget {
-  const productWidget({super.key});
+class ProductWidget extends StatelessWidget {
+  const ProductWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            width: 300,
-            height: 600,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 8,
-                  child: Center(
-                    child: Container(
-                      width: 200,
-                      height: 200,
-                      child: Image.asset(
-                        'assets/images/images.jpg',
-                        fit: BoxFit.fill,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(flex: 1, child: Text('Name: Chikawa')),
-                Expanded(
-                  flex: 1,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(flex: 3, child: Text('Price: ')),
-                      Flexible(flex: 1, child: Text('30\$ ', style: TextStyle(decoration: TextDecoration.lineThrough))),
-                      Flexible(flex: 1, child: Text('20\$'))
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    'Chikawa is Chiwawa, sdfsdkfdkshfkdshfjksdfhsdjkfhsdkjfhsdkfjhsdkjfhsdjkfhsdjkfhdskjfhdskjf'
-                        'dsfkdskfjdshjfkdsjfkdsjfkdslfjsdlkfjsldfjlsdfj'
-                        'dfksdfffffffffffffffffffffsdfse sdfsdfsdf'
-                        'ds dfjsflsejfesilfjsldfkd sdfsdfs',
-                    textAlign: TextAlign.justify,
-                  ),
-                )
-              ],
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Headline Text (Exercise 1)
+            const Text(
+              'Welcome to Flutter UI',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-          ),
-        )
+            const SizedBox(height: 8),
+            // Material Icon (Exercise 1)
+            const Center(
+              child: Icon(Icons.movie_creation, size: 60, color: Colors.blue),
+            ),
+            const SizedBox(height: 8),
+            // Image.network (Exercise 1)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                'https://picsum.photos/400/200',
+                height: 150,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Card containing a ListTile (Exercise 1)
+            Card(
+              color: Colors.grey.shade100,
+              child: const ListTile(
+                leading: Icon(Icons.star, color: Colors.amber),
+                title: Text('Movie Item'),
+                subtitle: Text('This is a sample ListTile inside a Card.'),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
