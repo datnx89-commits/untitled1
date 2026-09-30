@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../widgets/productWidget.dart';
-import '../widgets/inputWidget.dart';
+import '../models/product.dart';
+import '../models/product_dao.dart';
+import 'product_detail_screen.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -10,138 +11,136 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  bool isDarkMode = false;
+  final ProductDAO _productDAO = ProductDAO();
+  late List<Product> _displayProducts;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      theme: ThemeData(
-        brightness: Brightness.light,
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Lab 4 – Flutter UI Fundamentals'),
-          actions: [
-            Row(
-              children: [
-                const Text('Dark', style: TextStyle(fontSize: 14)),
-                Switch(
-                  value: isDarkMode,
-                  onChanged: (value) {
-                    setState(() {
-                      isDarkMode = value;
-                    });
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Complete Lab 4 Workflow',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-
-              const Text(
-                'Exercise 3: Now Playing List (ListView)',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.blueGrey),
-              ),
-              const SizedBox(height: 8),
-
-              SizedBox(
-                height: 280,
-                child: ListView(
-                  children: const [
-                    MovieCardItem(title: 'Avatar', subtitle: 'Sample description', letter: 'A'),
-                    MovieCardItem(title: 'Inception', subtitle: 'Sample description', letter: 'I'),
-                    MovieCardItem(title: 'Interstellar', subtitle: 'Sample description', letter: 'I'),
-                    MovieCardItem(title: 'Joker', subtitle: 'Sample description', letter: 'J'),
-                  ],
-                ),
-              ),
-              const Divider(height: 32),
-
-              const Text(
-                'Exercise 1: Core Widgets Demo',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.blueGrey),
-              ),
-              const SizedBox(height: 8),
-              const ProductWidget(),
-              const Divider(height: 32),
-
-              const Text(
-                'Exercise 2: Input Controls Demo',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.blueGrey),
-              ),
-              const SizedBox(height: 8),
-              const InputWidget(),
-            ],
-          ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Floating Action Button clicked successfully!')),
-            );
-          },
-          child: const Icon(Icons.add),
-        ),
-      ),
-    );
+  void initState() {
+    super.initState();
+    _displayProducts = _productDAO.getAllProduct();
   }
-}
 
-class MovieCardItem extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final String letter;
-
-  const MovieCardItem({
-    super.key,
-    required this.title,
-    required this.subtitle,
-    required this.letter,
-  });
+  void _onSearchChanged(String query) {
+    setState(() {
+      _displayProducts = _productDAO.findProductByName(query);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Products'),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
-      child: Row(
+      body: Column(
         children: [
-          CircleAvatar(
-            backgroundColor: Colors.blue.shade100,
-            child: Text(letter, style: const TextStyle(fontWeight: FontWeight.bold)),
+          // Thanh tìm kiếm (Search Bar)
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: _onSearchChanged,
+              decoration: InputDecoration(
+                hintText: 'Search products...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              ),
+            ),
           ),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 2),
-              Text(subtitle, style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
-            ],
+
+          // Danh sách sản phẩm dạng Grid đáp ứng (Responsive Grid)
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return OrientationBuilder(
+                  builder: (context, orientation) {
+                    double width = constraints.maxWidth;
+                    int crossAxisCount = 1;
+
+                    // Logic tính số cột theo yêu cầu đề bài
+                    if (width <= 500) {
+                      crossAxisCount = (orientation == Orientation.portrait) ? 1 : 2;
+                    } else {
+                      crossAxisCount = (orientation == Orientation.portrait) ? 2 : 3;
+                    }
+
+                    return GridView.builder(
+                      padding: const EdgeInsets.all(12.0),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 0.75, // Tỷ lệ chiều rộng/chiều cao của card
+                      ),
+                      itemCount: _displayProducts.length,
+                      itemBuilder: (context, index) {
+                        final product = _displayProducts[index];
+                        return GestureDetector(
+                          onTap: () {
+                            // Chuyển sang màn hình chi tiết khi nhấn vào sản phẩm
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProductDetailScreen(product: product),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Ảnh sản phẩm
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                                    child: Image.network(
+                                      product.image ?? 'https://picsum.photos/400/200',
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.image)),
+                                    ),
+                                  ),
+                                ),
+                                // Thông tin tên và giá
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        product.name,
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '\$${product.price.toStringAsFixed(2)}',
+                                        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
